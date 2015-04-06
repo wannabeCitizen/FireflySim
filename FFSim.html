@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <style>
+        #form1 {
+            padding: 10px 10px 10px 10px;
+            font-family: Tahoma;
+            font-weight: bold;
+        }    
+        #form1 input {
+            margin: 10px 10px 10px 10px;
+            display: inline-block;   
+        }
+        body {
+            width: 100%;
+        }
+        #tutorial {
+            padding: 20px 20px 40px 40px;
+            font-size: 16px;
+            font-family: serif;
+
+            h1 {
+                font-family: 'Helvetica Neue';    
+            }
+        } 
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row" id="tuorial">
+
+        </div>
+        <div class="row">
+            <form id="form1">
+                <div class="col-md-4">
+                    <div class="user_params" id="init1">
+                        Rows in grid:<br>
+                        <input type="text" id="rows" value="20">
+                        <br>Columns in grid<br>
+                        <input type="text" id="cols" value="20">
+                        <br>Period of Driving FireFly (in seconds):<br>
+                        <input type="text" id="wStim" value="2">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="user_params" id="init2"> 
+                        Maximum Period for Grid Fireflies:<br>
+                        <input type="text" id="wMax" value="2.2">
+                        <br>Mimimum Period for Grid Fireflies:<br>
+                        <input type="text" id="wMin" value="1.4">
+                        <br>Maximum Resetting Strength<br>
+                        <input type="text" id="aMax" value=".4">
+                        <br>Mimimum Resetting Strength<br>
+                        <input type="text" id="aMix" value="0">
+                        <br>Submit Values and Start Simulation
+                        <input type="submit" value="submit" id="sub_button">
+                    </div>
+                </div>
+            </form>
+            <br>Use these to start and stop the simulation
+            <button class="btn butn-default" id="startButton">Start</button>
+            <button class="btn butn-default" id="stopButton">Stop</button>
+        </div>
+    </div>
+    <script>
+    //Globals for sim
+    var rows;
+    var columns;
+    var wStim;
+    var wMax;
+    var wMin;
+    var aMax;
+    var aMin;
+
+    //This is where the user will add shit
+
+    $("#form1").submit(function ( event ){
+    //Pull in user inputs
+    rows = parseInt($("#rows").val());
+    columns = parseInt($("#cols").val());
+    wStim = parseFloat($("#wStim").val());
+    wMax = parseFloat($("#wMax").val());
+    wMin = parseFloat($("#wMin").val());
+    aMax = parseFloat($("#aMax").val());
+    aMin = parseFloat($("#aMin").val());
+    
+    //Set Defaults in case
+    if (!rows) { rows = 20;}
+    if (!columns) { columns = 20;}
+    if (!wStim) { wStim = 2;}
+    if (!wMax) { wMax = 2.2;}
+    if (!wMin) { wMin = 1.4;}
+    if (!aMax) { aMax = .4;}
+    if (!aMin) { aMin = 0;}
+
+    //Reset our canvas and stop any previous simulation
+    stopSystem();
+    $("svg").empty();
+    startSystem()
+    return false;
+
+    });
+
+    $("#startButton").click( function ( event ){ 
+        startSystem();
+    });
+
+    $("#stopButton").click( function ( event ){ 
+        stopSystem();
+    });
+
+    //Container for grid of dots/FF's + stimFF created
+    var grid = [];
+    
+    //Set up SVG element
+    var margins = {top: 20, left: 20, bottom: 20, right: 20},
+    width = window.innerWidth + 50 - margins.left - margins.right,
+    height = window.innerHeight + 75 - margins.top - margins.bottom;
+
+
+    //SVG selector
+    var svg = d3.select("body").append("svg")
+                                .attr("width", width)
+                                .attr("height", height)
+                                .attr("style", "background: black; margin-top: 20px");
+
+    // Used to stop/reset system
+    var resetSys = function () {
+        sysOn = 0;
+        $("svg").empty();
+    };
+
+    //Returns an svg element that represents a dot/FF
+    //Should be able to be added, blinked, and removed at a location
+    var blinkDot = function ( x_pos, y_pos ) {
+        var myFly = svg.append("svg:circle")
+            .attr("cx", x_pos)
+            .attr("cy", y_pos)
+            .attr("r", "5")
+            .attr("fill", "#D9FD00")
+            .attr("opacity", 0);
+
+        myFly.transition()
+            .attr("opacity", 1)
+            .duration(200)
+            .each("end", function () {
+                d3.select(this)
+                    .transition()
+                    .attr("opacity", 0)
+                    .duration(500)
+                    .each("end", function () {
+                        d3.select(this)
+                            .remove();
+                    });
+
+            });
+    };
+
+
+    
+
+    // Firefly Class - needed to control each dot on the svg canvas
+    // Keeps track of period in ms, intrinsic w, adjusted wn, A, theta, position
+    var Firefly = function (per, A, x, y) {
+        this.T = per * 1000;
+        this.Tadj;
+        this.w0 = ((2*Math.PI)/per);
+        this.wn = this.w0;
+        this.A = A;
+        this.theta = 0;
+        this.theta1 = -1;
+        this.x = x;
+        this.y = y;
+
+        this.nextState = function (t) {
+            this.theta1 = this.theta + this.wn * t;
+            if (Math.sin( this.theta ) < 0 && Math.sin(this.theta1) >= 0) {
+                blinkDot( this.x, this.y );
+            }
+            this.theta = this.theta1;
+
+        }
+
+        this.update = function (theta_stim) {
+            this.wn = this.wn + this.A*Math.sin(theta_stim - this.theta1);
+        };
+
+        this.blink = function () {
+            blinkDot( this.x, this.y );
+        }
+    };
+
+    // Set i x j grid of FF's with params w and A in entrainment region
+    // Like sliding in column vectors a/k/a like butter
+    var makeGrid = function (row, column, stim_w, maxA, minA) {
+        grid = [];
+        setRow = d3.scale.ordinal()
+                    .domain(d3.range(row))
+                    .rangeRoundPoints([100, height - 100], 1.0);
+
+        setColumn = d3.scale.ordinal()
+                    .domain(d3.range(column))
+                    .rangeRoundPoints([200, width - 100], 1.0);
+
+        for ( var i=0; i < row; i++ ) {
+            for ( var j=0; j < column; j++ ) {
+
+                _w = Math.random() * (wMax - wMin) + wMin;
+                _A = Math.random()*(maxA - minA) + minA;
+                //Stub: this is where I'd set a forced synchronization by adding or subtracting a to w
+                // rando = Math.random() * ( ( stim_w + stim_A ) - ( stim_w - stim_A ) ) + ( stim_w - stim_A );
+                //Get positions for dots that include sufficient padding
+                _x = setColumn(j);
+                _y = setRow(i);
+
+                //Create Firefly instance
+                newFF = new Firefly(_w, _A, _x, _y);
+                grid.push(newFF);
+            }
+        }
+
+    };
+
+    var xStim = 50;
+    var yStim = (height-100)/2;
+    var datBug; 
+    var updateInt;
+    // This is the function you call to cick everything off
+    var startSystem = function () {
+        datBug = new Firefly(wStim, aMax, xStim, yStim);
+        makeGrid(rows, columns, wStim, aMax, aMin);
+        updateInt = setInterval(function () { updateState(); }, 100 );
+    };
+
+    var stopSystem = function () {
+        clearInterval(updateInt);
+    };
+
+    var updateState = function () {
+        phase1 = datBug.theta;
+        datBug.nextState(.1);
+        phase2 = datBug.theta1;
+        for (fly in grid) { 
+            grid[fly].nextState(.1);
+        }
+        if (Math.sin(phase1) < 0 && Math.sin(phase2) >=0) {
+            for (fly in grid) {
+                grid[fly].update(phase2);
+            }
+        }
+    };
+
+    </script>
+</body>
+</html>
