@@ -54,7 +54,7 @@
                         <br>Maximum Resetting Strength<br>
                         <input type="text" id="aMax" value=".4">
                         <br>Mimimum Resetting Strength<br>
-                        <input type="text" id="aMix" value="0">
+                        <input type="text" id="aMin" value="0">
                         <br>Submit Values and Start Simulation
                         <input type="submit" value="submit" id="sub_button">
                     </div>
@@ -208,8 +208,8 @@
         for ( var i=0; i < row; i++ ) {
             for ( var j=0; j < column; j++ ) {
 
-                _w = Math.random() * (wMax - wMin) + wMin;
-                _A = Math.random()*(maxA - minA) + minA;
+                _w = (Math.random() * (wMax - wMin)) + wMin;
+                _A = (Math.random() * (maxA - minA)) + minA;
                 //Stub: this is where I'd set a forced synchronization by adding or subtracting a to w
                 // rando = Math.random() * ( ( stim_w + stim_A ) - ( stim_w - stim_A ) ) + ( stim_w - stim_A );
                 //Get positions for dots that include sufficient padding
