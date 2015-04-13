@@ -3,7 +3,7 @@ import time
 import sys
 
 from neopixel import *
-import ff_sim
+from ff_sim import *
 
 # ColorRGB = (255, 100, 0)
 PINS = [18, 27, 23, 25]
@@ -17,11 +17,11 @@ def runner(per_strip, strip, my_flies, strip_handle):
     #check who blinked
     for i in xrange(strip):
         for j in xrange(per_strip):
-            strip_handle[i].setPixelColorRGB(j, int(my_flies[i][j].brightnessR), int(my_flies[i][j].brightnessG))
+            strip_handle[i].setPixelColorRGB(j, int(my_flies1[i][j].brightnessR), int(my_flies1[i][j].brightnessG), 0)
 
     #update strip
     for i in xrange(strip):
-        strip[i].show()
+        strip_handle[i].show()
 
     return my_flies1
 

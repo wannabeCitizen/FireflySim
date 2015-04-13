@@ -15,21 +15,29 @@ class FireFly:
         self.blink = 0
         self.brightnessR = 0
         self.brightnessG = 0
+        self.count = 0
 
     def next_state(self, t):
         self.theta1 = self.theta + self.wn * t
         if (np.sin(self.theta) < 0) and (np.sin(self.theta1) >= 0):
             self.blink = 1
-            self.brightness = 1
+            self.brightnessR = 1
+            self.brightnessG = 1
         self.theta = self.theta1
         if self.blink == 1:
+            self.count += 1
             self.brightnessR += .85
             self.brightnessG += .33
-            if round(self.brightnessR) == 255:
+            if self.count  == 255:
                 self.blink = 0
-        elif (not self.blink) and (self.brightness > 0):
+        elif (self.brightnessR > 0):
             self.brightnessR -= .51
             self.brightnessG -= .2
+            if self.count == 510:
+                self.count = 0
+                self.brightnessR = 0
+                self.brightnessG = 0
+                
 
     def update(self, theta_stim):
         self.wn = self.wn + (self.A * np.sin(theta_stim - self.theta1))
@@ -40,7 +48,7 @@ class FireFly:
 def make_ff_array(strip_length, num_strips, A_max, A_min, w_stim, w_max, w_min):
     ff_arrays = {}
 
-    ff_arrays['stim'] = Firefly(w_stim, A_min)
+    ff_arrays['stim'] = FireFly(w_stim, A_min)
     for i in xrange(num_strips):
         ff_strip = []
         for j in range(strip_length):
@@ -48,8 +56,8 @@ def make_ff_array(strip_length, num_strips, A_max, A_min, w_stim, w_max, w_min):
             _A = (np.random.random() * (A_max - A_min)) + A_min
 
             next_ff = FireFly(_w, _A)
-            arr.push(next_ff)
-        ff_arrays[i] = arr
+            ff_strip.append(next_ff)
+        ff_arrays[i] = ff_strip
     return ff_arrays
 
 def update_state(ff_array, t, num_strips, strip_length):
