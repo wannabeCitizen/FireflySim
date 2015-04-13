@@ -1,5 +1,9 @@
 #!/usr/bin/python
 import numpy as np
+R_colors_up = np.linspace(0, 255, 300)
+R_colors_down = np.linspace(0, 255, 500)
+G_colors_up = np.linspace(0, 100, 300)
+G_colors_down = np.linspace(0, 100, 500)
 
 
 class FireFly:
@@ -10,7 +14,7 @@ class FireFly:
         self.w0 = ((2*np.pi)/T)
         self.wn = ((2*np.pi)/T)
         self.A = A
-        self.theta = 0
+        self.theta = -np.pi
         self.theta1 = -1
         self.blink = 0
         self.brightnessR = 0
@@ -26,17 +30,16 @@ class FireFly:
         self.theta = self.theta1
         if self.blink == 1:
             self.count += 1
-            self.brightnessR += .85
-            self.brightnessG += .33
-            if self.count  == 255:
+            self.brightnessR = int(R_colors_up[self.count])
+            self.brightnessG = int(G_colors_up[self.count])
+            if self.count >= 299:
                 self.blink = 0
-        elif (self.brightnessR > 0):
-            self.brightnessR -= .51
-            self.brightnessG -= .2
-            if self.count == 510:
-                self.count = 0
-                self.brightnessR = 0
-                self.brightnessG = 0
+                self.count = 500
+        elif self.count > 0:
+            self.count -= 1 
+            self.brightnessR = int(R_colors_down[self.count])
+            self.brightnessG = int(G_colors_down[self.count])
+
                 
 
     def update(self, theta_stim):

@@ -8,8 +8,6 @@ from ff_sim import *
 # ColorRGB = (255, 100, 0)
 PINS = [18, 27, 23, 25]
 
-
-
 def runner(per_strip, strip, my_flies, strip_handle):
     #update state of all ffs
     my_flies1 = update_state(my_flies, .001, strip, per_strip)
@@ -17,7 +15,7 @@ def runner(per_strip, strip, my_flies, strip_handle):
     #check who blinked
     for i in xrange(strip):
         for j in xrange(per_strip):
-            strip_handle[i].setPixelColorRGB(j, int(my_flies1[i][j].brightnessR), int(my_flies1[i][j].brightnessG), 0)
+            strip_handle[i].setPixelColorRGB(j, my_flies1[i][j].brightnessR, my_flies1[i][j].brightnessG, 0)
 
     #update strip
     for i in xrange(strip):
