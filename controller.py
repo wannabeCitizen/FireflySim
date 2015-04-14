@@ -2,15 +2,15 @@
 import time
 import sys
 
-from neopixel import *
-from ff_sim import *
+import neopixel as np
+import ff_sim as ffs
 
 # ColorRGB = (255, 100, 0)
 PINS = [18, 27, 23, 25]
 
-def runner(per_strip, strip, my_flies, strip_handle):
+def runner(per_strip, strip, my_flies, strip_handle, t):
     #update state of all ffs
-    my_flies1 = update_state(my_flies, .001, strip, per_strip)
+    my_flies1 = ffs.update_state(my_flies, t, strip, per_strip)
 
     #check who blinked
     for i in xrange(strip):
@@ -35,6 +35,9 @@ if __name__ == '__main__':
     A_max = float(raw_input("Maximum Reset Strength A?:  "))
     w_min = float(raw_input("Minimum Period:  "))
     w_max = float(raw_input("Maximum Period?:  "))
+    update_time = float(raw_input("What time step would you like to use? (takes about .02s to clear GPIO buffer):  "))
+    t_up = float(raw_input("Blink up time?:  "))
+    t_down = float(raw_input("Blink down time?:  "))
 
     try: 
         PINS[strip_num - 1]
@@ -44,21 +47,22 @@ if __name__ == '__main__':
 
 
     #Create FF Agents
-    FFs = make_ff_array(ff_num, strip_num, A_max, A_min, stim_w, w_max, w_min)
+    FFs = ffs.make_ff_array(ff_num, strip_num, A_max, A_min, stim_w, w_max, w_min, t_up, t_down)
 
     #Create Strip Objects
     strips = []
     for i in range(strip_num):
-        next_strip = Adafruit_NeoPixel(ff_num, PINS[i])
+        next_strip = np.Adafruit_NeoPixel(ff_num, PINS[i])
         strips.append(next_strip)
         next_strip.begin()
 
 
+    #May eventually need a reset so that memory doesn't overflow
     #Start Running
     print "Press Ctrl-C to stop at any time"
     while True:
-        FFs = runner(ff_num, strip_num, FFs, strips)
-        time.sleep(.001)
+        FFs = runner(ff_num, strip_num, FFs, strips, update_time)
+        time.sleep(update_time)
 
 
 
