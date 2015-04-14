@@ -32,15 +32,15 @@ class FireFly:
 
         if self.blink == 1:
             self.count += 1
-            self.brightnessR = int(R_colors_up[self.count])
-            self.brightnessG = int(G_colors_up[self.count])
+            self.brightnessR = int(self.R_colors_up[self.count])
+            self.brightnessG = int(self.G_colors_up[self.count])
             if self.count >= self.b_up:
                 self.blink = 0
                 self.count = self.b_down
         elif self.count > 0:
             self.count -= 1 
-            self.brightnessR = int(R_colors_down[self.count])
-            self.brightnessG = int(G_colors_down[self.count])
+            self.brightnessR = int(self.R_colors_down[self.count])
+            self.brightnessG = int(self.G_colors_down[self.count])
 
                 
 

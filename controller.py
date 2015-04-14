@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
 
     #Create FF Agents
-    FFs = ffs.make_ff_array(ff_num, strip_num, A_max, A_min, stim_w, w_max, w_min, t_up, t_down)
+    FFs = ffs.make_ff_array(ff_num, strip_num, A_max, A_min, stim_w, w_max, w_min, update_time, t_up, t_down)
 
     #Create Strip Objects
     strips = []
