@@ -53,10 +53,10 @@ class FireFly:
 def make_ff_array(strip_length, num_strips, A_max, A_min, w_stim, w_max, w_min, t, t_up, t_down):
     up = round(t_up/t)
     down = round(t_down/t)
-    R_colors_up = np.linspace(0, 255, up + 1)
-    R_colors_down = np.linspace(0, 255, down + 1)
-    G_colors_up = np.linspace(0, 100, up + 1)
-    G_colors_down = np.linspace(0, 100, down + 1)
+    R_colors_up = np.linspace(0, 160, up + 1)
+    R_colors_down = np.linspace(0, 160, down + 1)
+    G_colors_up = np.linspace(0, 250, up + 1)
+    G_colors_down = np.linspace(0, 250, down + 1)
 
     ff_arrays = {}
 
