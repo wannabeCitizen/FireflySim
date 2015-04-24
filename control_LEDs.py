@@ -1,12 +1,18 @@
 #!/usr/bin/python
+
+#Built-in Imports
 import time
 import sys
 
-import neopixel as np
+#Libraries
+import RPi.GPIO as GPIO
+import neopixel as npx
 import ff_sim as ffs
 
 # ColorRGB = (255, 100, 0)
 PINS = [18, 27, 23, 25]
+KEEP_GOING = True
+last_press = 10
 
 def runner(per_strip, strip, my_flies, strip_handle, t):
     #update state of all ffs
@@ -22,6 +28,30 @@ def runner(per_strip, strip, my_flies, strip_handle, t):
         strip_handle[i].show()
 
     return my_flies1
+
+def take_user_input(ff_num, strip_num, FFs, stripts, update_time):
+
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(23, GPIO.IN)
+    GPIO.add_event_detect(23, GPIO.FALLING, input_handler, 400)
+
+    while KEEP_GOING:
+        FFs = runner(ff_num, strip_num, FFs, strips, update_time)
+        time.sleep(update_time)
+
+    GPIO.cleanup()
+
+def input_handler(pin):
+    press = time.time()
+    global last_press
+    since = press - last_press
+    if since > 10:
+        last_press = press
+    else:
+        KEEP_GOING = False
+        new_frequency(since)
+
+def new_frequency():
 
 
 #Expects to run with 2 arguments:
@@ -52,10 +82,10 @@ if __name__ == '__main__':
     #Create Strip Objects
     strips = []
     for i in range(strip_num):
-        next_strip = np.Adafruit_NeoPixel(ff_num, PINS[i])
+        next_strip = npx.Adafruit_NeoPixel(ff_num, PINS[i])
         strips.append(next_strip)
         next_strip.begin()
-
+    
 
     #May eventually need a reset so that memory doesn't overflow
     #Start Running
