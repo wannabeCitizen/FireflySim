@@ -7,12 +7,10 @@ import sys
 #Libraries
 import RPi.GPIO as GPIO
 import neopixel as npx
-import ff_sim as ffs
+import play_sim1 as ffs
 
 # Global for hardware system
 PINS = [18, 27, 23, 25]
-KEEP_GOING = True
-last_press = 10
 strip_handle = []
 period_range = 1.0
 mode = 0
@@ -28,46 +26,11 @@ def runner(grid):
     #check who blinked
     for i in xrange(grid.groups):
         for j in xrange(grid.group_size):
-            strip_handle[i].setPixelColorRGB(j, my_flies1[i][j].brightnessR, my_flies1[i][j].brightnessG, 0)
+            strip_handle[i].setPixelColorRGB(j, 0, grid.FFs[i][j].brightnessG, grid.FFs[i][j].brightnessB)
 
     #update strip
-    for i in xrange(strip):
+    for i in xrange(grid.groups):
         strip_handle[i].show()
-
-    return my_flies1
-
-def take_user_input(current_grid):
-    global KEEP_GOING
-
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(23, GPIO.IN)
-    GPIO.add_event_detect(23, GPIO.FALLING, input_handler, 400)
-
-    while KEEP_GOING:
-        FFs = runner(current_grid)
-        time.sleep(current_grid.t)
-
-    GPIO.cleanup()
-
-def input_handler(pin):
-    press = time.time()
-    global last_press
-    global KEEP_GOING
-    since = press - last_press
-    if since > 10:
-        last_press = press
-    else:
-        KEEP_GOING = False
-        global strip_num
-        global ff_num
-        global mode
-        if mode == 1:
-            new_grid = ffs.GridAdapt(ff_num, strip_num, .6, .4, since, since + .5, since - .4, .025)
-            take_user_input(new_grid)
-        else:
-            global period_range
-            new_grid = ffs.GridLock(ff_num, strip_num, since, period_range, .025)
-            take_user_input(new_grid)
 
 #Expects to run with 2 arguments:
 #num of strips and num of ff's per strip
@@ -78,7 +41,7 @@ def make_sim():
     global strip_num
 
 
-    mode = int(raw_input("What mode would you like to run in?: \n1. Phase Adapt \n2. Phase Lock"))
+    mode = int(raw_input("What mode would you like to run in?: \n1. Phase Adapt \n2. Phase Lock\n"))
 
     if mode == 1:
         ff_num = int(raw_input("How many fireflies are on a strip?:  "))
@@ -117,13 +80,13 @@ def make_sim():
         next_strip.begin()
 
     if mode == 1:
-        grid = ffs.GridAdapt(ff_num, strip_num, A_max, A_min, stim_w, w_max, w_min, .025)
+        grid = ffs.GridAdapt(ff_num, strip_num, A_max, A_min, stim_w, w_max, w_min, .035)
     else:
-        grid = ffs.GridLock(ff_num, strip_num, stim_w, T_range, .025)
-
-    take_user_input(grid)
-
-if __name__ == '__main__':
-    make_sim()
-
+        grid = ffs.GridLock(ff_num, strip_num, stim_w, T_range, .035)
     
+    while True:
+        runner(grid)
+        time.sleep(.035)
+
+if __name__ == "__main__":
+    make_sim()
