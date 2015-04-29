@@ -7,10 +7,12 @@ import sys
 #Libraries
 import RPi.GPIO as GPIO
 import neopixel as npx
-import play_sim1 as ffs
+import sim_finalv1 as ffs
 
 # Global for hardware system
 PINS = [18, 27, 23, 25]
+KEEP_GOING = True
+last_press = 10
 strip_handle = []
 period_range = 1.0
 mode = 0
@@ -26,11 +28,25 @@ def runner(grid):
     #check who blinked
     for i in xrange(grid.groups):
         for j in xrange(grid.group_size):
-            strip_handle[i].setPixelColorRGB(j, grid.FFs[i][j].brightnessR, grid.FFs[i][j].brightnessG, grid.FFs[i][j].brightnessB)
+            strip_handle[i].setPixelColorRGB(j, grid.FFs[i][j].brightnessR, grid.FFs[i][j].brightnessG, 0)
 
     #update strip
     for i in xrange(grid.groups):
         strip_handle[i].show()
+
+def take_user_input(current_grid):
+    global KEEP_GOING
+    KEEP_GOING = True
+
+    while KEEP_GOING:
+        FFs = runner(current_grid)
+        time.sleep(current_grid.t)
+
+    GPIO.cleanup()
+
+def input_handler(pin):
+    press = time.time()
+    print "Got a press"
 
 #Expects to run with 2 arguments:
 #num of strips and num of ff's per strip
@@ -49,7 +65,7 @@ def make_sim():
         stim_w = float(raw_input("Stimulus Period?:  "))
         A_min = .2
         A_max = .7
-        if stim_w <= .7:
+        if stim_w <=.7:
             w_min = stim_w - .2
         else:
             w_min = stim_w - .5
@@ -74,7 +90,11 @@ def make_sim():
         print "You're trying to use too many strips given the set pins"
         print "Consider changing the pin settings or chaining your strips\n\n"
 
-
+    
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(21, GPIO.IN, GPIO.PUD_UP)
+    GPIO.add_event_detect(21, GPIO.RISING, input_handler, 500)
+    
     #Create Strip Objects
     global strip_handle
     for i in range(strip_num):
@@ -86,10 +106,9 @@ def make_sim():
         grid = ffs.GridAdapt(ff_num, strip_num, A_max, A_min, stim_w, w_max, w_min, .035)
     else:
         grid = ffs.GridLock(ff_num, strip_num, stim_w, T_range, .035)
-    
-    while True:
-        runner(grid)
-        time.sleep(.035)
 
-if __name__ == "__main__":
+    take_user_input(grid)
+
+if __name__ == '__main__':
     make_sim()
+

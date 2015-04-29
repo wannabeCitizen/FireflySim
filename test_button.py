@@ -5,19 +5,22 @@ import time
 
 last_press = 10
 runny = True
+counter = 0
 
 def re_runner(pin):
     start = time.time()
-    global last_press
-    global runny
-    if start - last_press > 4:
-        last_press = start
-        print "Waited too long"
-    else:
-        runny = False
-        print "\n\nThis is the good stuff\n\n"
+    #global last_press
+   # global runny
+    global counter
+    counter += 1
+    print counter
+    #if start - last_press > 4:
+    #    last_press = start
+   # else:
+       # runny = False
+       # print "\n\nWe're all done\n\n"
         
-    print "Killed it at {0}".format(time.time())
+    #print "Killed it at {0}".format(time.time())
 
 
 
@@ -27,8 +30,8 @@ def run_test():
     #Set GPIO mode to board layout, listening to pin 23 for a Falling Edge
     #Callback to re_runner function
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(23, GPIO.IN)
-    GPIO.add_event_detect(23, GPIO.FALLING, re_runner, 500)
+    GPIO.setup(21, GPIO.IN, GPIO.PUD_UP)
+    GPIO.add_event_detect(21, GPIO.FALLING, re_runner, 500)
 
     while runny:
         make_words(1)
@@ -38,7 +41,8 @@ def run_test():
 
 
 def make_words(x):
-    words = ["flab", "grandma", "popsicle", "cheese", "siren", "quagmire", "troll", "medula ablingata", "Jesus"]
+    global counter
+    words = ["going {0}".format(counter), "grandma", "popsicle", "cheese", "siren", "quagmire", "troll", "medula ablingata", "Jesus"]
     for i in range(x):
         print words[i]
 
