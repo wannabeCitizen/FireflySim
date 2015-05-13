@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import numpy as np
-
+#FF is 70, 200, 220
+#FF 130, 180
+#Lav = 71, 153, 159
 class FireflyAdaptive:
     
     # Firefly period is set in seconds
@@ -22,12 +24,12 @@ class FireflyAdaptive:
         else:
             self.b_up = round(.3/t) 
             self.b_down = round(.4/t)
-        self.R_colors_up = np.linspace(0, 160, self.b_up + 1)
-        self.R_colors_down = np.linspace(0, 160, self.b_down + 1)
-        self.G_colors_up = np.linspace(0, 250, self.b_up + 1)
-        self.G_colors_down = np.linspace(0, 250, self.b_down + 1)
-        self.B_colors_up = np.linspace(0, np.random.random()*254, self.b_up + 1)
-        self.B_colors_down = np.linspace(0, np.random.random()*254, self.b_down + 1)
+        self.R_colors_up = np.linspace(0, 49, self.b_up + 1)
+        self.R_colors_down = np.linspace(0, 49, self.b_down + 1)
+        self.G_colors_up = np.linspace(0, 156, self.b_up + 1)
+        self.G_colors_down = np.linspace(0, 156, self.b_down + 1)
+        self.B_colors_up = np.linspace(0, 1, self.b_up + 1)
+        self.B_colors_down = np.linspace(0, 1, self.b_down + 1)
         self.t = t
 
     def next_state(self):
@@ -56,7 +58,7 @@ class FireflyAdaptive:
                 
 
     def update(self, theta_stim):
-        self.wn = self.wn + (self.A * np.sin(theta_stim - self.theta1))
+        self.wn = self.w0 + (self.A * np.sin(theta_stim - self.theta1))
 
 
 class FireflyLock:
@@ -83,12 +85,12 @@ class FireflyLock:
         else:
             self.b_up = round(.3/t) 
             self.b_down = round(.4/t)
-        self.R_colors_up = np.linspace(0, np.random.random()*254, self.b_up + 1)
-        self.R_colors_down = np.linspace(0, np.random.random()*254, self.b_down + 1)
-        self.G_colors_up = np.linspace(0, np.random.random()*254, self.b_up + 1)
-        self.G_colors_down = np.linspace(0, np.random.random()*254, self.b_down + 1)
-        self.B_colors_up = np.linspace(0, np.random.random()*254, self.b_up + 1)
-        self.B_colors_down = np.linspace(0, np.random.random()*254, self.b_down + 1)
+        self.R_colors_up = np.linspace(0, 130, self.b_up + 1)
+        self.R_colors_down = np.linspace(0, 130, self.b_down + 1)
+        self.G_colors_up = np.linspace(0, 180, self.b_up + 1)
+        self.G_colors_down = np.linspace(0,180, self.b_down + 1)
+        self.B_colors_up = np.linspace(0, 1 ,self.b_up + 1)
+        self.B_colors_down = np.linspace(0, 1, self.b_down + 1)
         #time of system updates
         self.t = t
 

@@ -28,7 +28,7 @@ def runner(grid):
     #check who blinked
     for i in xrange(grid.groups):
         for j in xrange(grid.group_size):
-            strip_handle[i].setPixelColorRGB(j, grid.FFs[i][j].brightnessR, grid.FFs[i][j].brightnessG, 0) #grid.FFs[i][j].brightnessB)
+            strip_handle[i].setPixelColorRGB(j, grid.FFs[i][j].brightnessR, grid.FFs[i][j].brightnessG, grid.FFs[i][j].brightnessB)
 
     #update strip
     for i in xrange(grid.groups):
@@ -39,9 +39,14 @@ def take_user_input(current_grid):
     global KEEP_GOING
     KEEP_GOING = True
 
+    started = time.time()
+
     while KEEP_GOING:
         runner(current_grid)
+        curr = time.time()
         time.sleep(.035)
+        if curr - started > 400:
+            KEEP_GOING = False
     
     print "starting over"
     return True
@@ -63,8 +68,8 @@ def run_again(since):
     global mode
     global next_grid
     if mode == 1:
-        if since <= .7:
-            my_min = since - .2
+        if since <= .6:
+            my_min = since - .1
         else:
             my_min = since - .4
         next_grid = ffs.GridAdapt(ff_num, strip_num, .6, .2, since, since + .5, my_min, .035)
@@ -131,8 +136,9 @@ def make_sim():
         current_grid = ffs.GridAdapt(ff_num, strip_num, A_max, A_min, stim_w, w_max, w_min, .035)
     else:
         current_grid = ffs.GridLock(ff_num, strip_num, stim_w, T_range, .035)
-
+    
     while take_user_input(current_grid):
+        run_again(2.5)
         global next_grid
         current_grid = next_grid
 

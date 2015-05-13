@@ -46,7 +46,7 @@ class FireflyAdaptive:
                 
 
     def update(self, theta_stim):
-        self.wn = self.wn + (self.A * np.sin(theta_stim - self.theta1))
+        self.wn = self.w0 + (self.A * np.sin(theta_stim - self.theta1))
 
 
 class FireflyLock:
